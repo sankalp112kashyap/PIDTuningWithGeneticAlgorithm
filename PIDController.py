@@ -1,4 +1,6 @@
 import numpy as np
+import math
+import time
 
 class PIDController:
     def __init__(self, kp, ki, kd, setpoint):
@@ -8,12 +10,13 @@ class PIDController:
         self.setpoint = setpoint
         self.prev_error = 0.0
         self.integral = 0.0
+        self.dt = 1.0
 
     def update(self, current_position):
         error = self.setpoint - current_position
         proportional_term = self.kp * error
-        self.integral += self.ki * error
-        derivative_term = self.kd * (error - self.prev_error)
+        self.integral += self.ki * (error * self.dt)
+        derivative_term = self.kd * ((error - self.prev_error)/self.dt)
         control_signal = proportional_term + self.integral + derivative_term
         self.prev_error = error
         return control_signal
@@ -34,7 +37,7 @@ class MotorSimulator:
         return self.angular_position
 
 # Define PID gains to be optimized
-kp = 0.5
+kp = 0.5                   
 ki = 0.2
 kd = 0.1
 
@@ -55,16 +58,37 @@ motor_simulator = MotorSimulator(inertia=1.0, friction=0.1, initial_position=cur
 time_steps = 100
 total_error = 0.0
 
+# Lists to store data for plotting
+time_points = []
+current_position_values = []
 
-for _ in range(time_steps):
-    print(current_position)
+for t in range(time_steps):
+    print(math.degrees(current_position))
 
+    # Store data for plotting
+    time_points.append(t)
+    current_position_values.append(math.degrees(current_position))
+
+    # current_angular position
     current_position = motor_simulator.update(pid_controller.update(motor_simulator.angular_position))
 
     error = setpoint - current_position
     total_error += abs(error)
 
+    # Pause for a sec (dt) moment (simulating real-time control)
+    time.sleep(1)
 
-# print ("For 10 generation with exact (fine tuned with genetic algorithm) K gains")
+
 # Calculate and print the total error as a performance measure
 print("Total Error:", total_error)
+
+
+# Plotting the results (you'll need matplotlib for this)
+import matplotlib.pyplot as plt
+
+plt.plot(time_points, current_position_values)
+plt.xlabel('Time (s)')
+plt.ylabel('Current position (in degrees)')
+plt.title('PID Control of Angular Posistion of Satellite Motor simulation')
+plt.grid(True)
+plt.show()

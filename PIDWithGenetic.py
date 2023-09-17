@@ -57,7 +57,7 @@ def fitness_function(gains):
 
 # Define genetic algorithm parameters
 population_size = 50
-num_generations = 200
+num_generations = 10
 mutation_rate = 0.1
 
 # Define the range for PID gains

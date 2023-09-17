@@ -1,5 +1,4 @@
 import numpy as np
-import math
 import time
 
 class PIDController:
@@ -27,12 +26,13 @@ class MotorSimulator:
         self.friction = friction
         self.angular_position = initial_position
         self.angular_velocity = 0.0
+        self.dt = 1.0
 
     def update(self, control_signal):
         # Simulate motor dynamics (Euler's method)
         acceleration = control_signal - self.friction * self.angular_velocity
-        self.angular_velocity += acceleration / self.inertia
-        self.angular_position += self.angular_velocity
+        self.angular_velocity += acceleration / self.inertia * self.dt
+        self.angular_position += self.angular_velocity * self.dt
 
         return self.angular_position
 
@@ -63,11 +63,11 @@ time_points = []
 current_position_values = []
 
 for t in range(time_steps):
-    print(math.degrees(current_position))
+    print(current_position)
 
     # Store data for plotting
     time_points.append(t)
-    current_position_values.append(math.degrees(current_position))
+    current_position_values.append(current_position)
 
     # current_angular position
     current_position = motor_simulator.update(pid_controller.update(motor_simulator.angular_position))
@@ -83,7 +83,7 @@ for t in range(time_steps):
 print("Total Error:", total_error)
 
 
-# Plotting the results (you'll need matplotlib for this)
+# Plotting the results
 import matplotlib.pyplot as plt
 
 plt.plot(time_points, current_position_values)
